@@ -1,0 +1,14 @@
+{
+    "name": "flownative/neos-replicator",
+    "type": "typo3-flow-package",
+    "description": "Replication and staging for Neos",
+    "license": "MIT",
+    "require": {
+        "typo3/neos": "~2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flownative\\Neos\\Replicator\\": "Classes"
+        }
+    }
+}
