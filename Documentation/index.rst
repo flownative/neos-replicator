@@ -79,9 +79,28 @@ Replications define what is replicated between systems:
 - the source and target workspace
 - endpoints to replicate from/to
 - filters to exclude or include items
+- …
 
 This is done in *Settings.yaml* as follows:
 
 .. literalinclude:: ../Configuration/Settings.yaml
    :language: yaml
    :lines: 24-43
+
+Things to keep in mind
+----------------------
+
+- **Connected items are replicated** even if not explicitly enabled in some cases. If you just enable the
+  replication of nodes, assets used in these nodes will be transferred as well.
+- **Settings are never replicated**. Since Neos relies on configuration in YAML and we consider that configuration
+  part of your code, it is assumed you deploy it as such.
+- **Packages are never replicated**. Your site package, any add-ons your site uses and the Neos system itself
+  are-again-just code and deployed as such. That means any content relying on specific code being available
+  will only work as expected if that code is available on the target.
+
+Inside the replication
+----------------------
+
+Here is what happens:
+
+.. image:: Images/replication-flow.png

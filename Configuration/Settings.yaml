@@ -31,7 +31,7 @@ Flownative:
           description: 'Deploys from editing to staging'
           # how replication is triggered: publish, manual
           trigger: 'publish'
-          # what data is to be replicated: nodes, users
+          # what data is to be replicated: nodes, users, assets
           types: ['nodes']
           # workspaces to replicate, examples:
           # 'live', 'variant-a:live', '*', 'user-*'
