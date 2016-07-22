@@ -1,0 +1,175 @@
+#
+# "Service" subroutes configuration for the Flownative.Neos.Replicator package
+#
+
+# RESTful routes for Nodes service
+-
+  name: 'Nodes - index'
+  uriPattern: 'nodes'
+  defaults:
+    '@controller': 'Service\Nodes'
+    '@action':     'index'
+  appendExceedingArguments: TRUE
+  httpMethods: ['GET']
+
+-
+  name: 'Nodes - single node'
+  uriPattern: 'nodes/{identifier}'
+  defaults:
+    '@controller': 'Service\Nodes'
+    '@action':     'show'
+  appendExceedingArguments: TRUE
+  httpMethods: ['HEAD', 'GET']
+
+-
+  name: 'Nodes - create/adopt node'
+  uriPattern: 'nodes'
+  defaults:
+    '@controller': 'Service\Nodes'
+    '@action':     'create'
+  appendExceedingArguments: TRUE
+  httpMethods: ['POST']
+
+-
+  name: 'Nodes - update node'
+  uriPattern: 'nodes/{identifier}'
+  defaults:
+    '@controller': 'Service\Nodes'
+    '@action':     'update'
+  appendExceedingArguments: TRUE
+  httpMethods: ['PUT']
+
+-
+  name: 'Nodes - delete node'
+  uriPattern: 'nodes/{identifier}'
+  defaults:
+    '@controller': 'Service\Nodes'
+    '@action':     'delete'
+  appendExceedingArguments: TRUE
+  httpMethods: ['DELETE']
+
+# RESTful routes for Assets service
+-
+  name: 'Assets - index'
+  uriPattern: 'assets'
+  defaults:
+    '@controller': 'Service\Assets'
+    '@action':     'index'
+  appendExceedingArguments: TRUE
+  httpMethods: ['GET']
+
+-
+  name: 'Assets - single asset'
+  uriPattern: 'assets/{identifier}'
+  defaults:
+    '@controller': 'Service\Assets'
+    '@action':     'show'
+  appendExceedingArguments: TRUE
+  httpMethods: ['HEAD', 'GET']
+
+-
+  name: 'Assets - create'
+  uriPattern: 'assets'
+  defaults:
+    '@controller': 'Service\Assets'
+    '@action':     'create'
+  appendExceedingArguments: TRUE
+  httpMethods: ['POST']
+
+# RESTful WorkspacesController routes
+
+-
+  name: 'Services - WorkspacesController->indexAction()'
+  uriPattern: 'workspaces'
+  defaults:
+    '@controller': 'Service\Workspaces'
+    '@action':     'index'
+  appendExceedingArguments: TRUE
+  httpMethods: ['GET']
+
+-
+  name: 'Services - WorkspacesController->showAction()'
+  uriPattern: 'workspaces/{workspace}'
+  defaults:
+    '@controller': 'Service\Workspaces'
+    '@action':     'show'
+  httpMethods: ['GET']
+
+-
+  name: 'Services - WorkspacesController->createAction()'
+  uriPattern: 'workspaces/{baseWorkspace}/{workspaceName}'
+  defaults:
+    '@controller': 'Service\Workspaces'
+    '@action':     'create'
+    '@format':     'json'
+  httpMethods: ['POST']
+
+-
+  name: 'Services - WorkspacesController->createAction()'
+  uriPattern: 'workspaces/{workspaceName}'
+  defaults:
+    '@controller': 'Service\Workspaces'
+    '@action':     'createLive'
+    '@format':     'json'
+  httpMethods: ['POST']
+
+# Note: we need to specify the workspace as {workspace.__identity} in the uriPattern because if we just used
+# {workspace}, the properties could not be overridden through the parameters in the PUT request's body.
+# This is a shortcoming of the DispatchComponent and should be solved in a future version of Flow.
+-
+  name: 'Services - WorkspacesController->updateAction()'
+  uriPattern: 'workspaces/{workspace.__identity}'
+  defaults:
+    '@controller': 'Service\Workspaces'
+    '@action':     'update'
+    '@format':     'json'
+  appendExceedingArguments: TRUE
+  httpMethods: ['PUT']
+
+
+# RESTful SitesController routes
+
+-
+  name: 'Services - SitesController->indexAction()'
+  uriPattern: 'sites'
+  defaults:
+    '@controller': 'Service\Sites'
+    '@action':     'index'
+  appendExceedingArguments: TRUE
+  httpMethods: ['GET']
+
+-
+  name: 'Services - SitesController->showAction()'
+  uriPattern: 'sites/{nodeName}'
+  defaults:
+    '@controller': 'Service\Sites'
+    '@action':     'show'
+  httpMethods: ['GET']
+
+-
+  name: 'Services - SitesController->createAction()'
+  uriPattern: 'sites'
+  defaults:
+    '@controller': 'Service\Sites'
+    '@action':     'create'
+    '@format':     'json'
+  httpMethods: ['POST']
+
+# ContentDimensionController routes
+-
+  name: 'Services - ContentDimensionController->index()'
+  uriPattern: 'content-dimensions'
+  defaults:
+    '@controller': 'Service\ContentDimensions'
+    '@action':     'index'
+  appendExceedingArguments: TRUE
+  httpMethods: ['GET']
+
+-
+  name: 'Services - ContentDimensionController->show()'
+  uriPattern: 'content-dimensions/{dimensionName}'
+  defaults:
+    '@controller': 'Service\ContentDimensions'
+    '@action':     'show'
+  appendExceedingArguments: TRUE
+  httpMethods: ['GET']

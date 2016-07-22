@@ -1,0 +1,36 @@
+#                                                                        #
+# Security policy for the Neos package                                   #
+#                                                                        #
+
+privilegeTargets:
+
+  'TYPO3\Flow\Security\Authorization\Privilege\Method\MethodPrivilege':
+
+    'Flownative.Neos.Replicator:Service.Nodes':
+      matcher: 'method(Flownative\Neos\Replicator\Controller\Service\NodesController->(.*)Action())'
+
+    'Flownative.Neos.Replicator:Service.Sites':
+      matcher: 'method(Flownative\Neos\Replicator\Controller\Service\SitesController->(.*)Action())'
+
+    'Flownative.Neos.Replicator:Service.Workspaces':
+      matcher: 'method(Flownative\Neos\Replicator\Controller\Service\WorkspacesController->(.*)Action())'
+
+    'Flownative.Neos.Replicator:Service.Assets':
+      matcher: 'method(Flownative\Neos\Replicator\Controller\Service\AssetsController->(.*)Action())'
+
+roles:
+
+  'Flownative.Neos.Replicator:Writer':
+    privileges:
+      -
+        privilegeTarget: 'Flownative.Neos.Replicator:Service.Nodes'
+        permission: GRANT
+      -
+        privilegeTarget: 'Flownative.Neos.Replicator:Service.Sites'
+        permission: GRANT
+      -
+        privilegeTarget: 'Flownative.Neos.Replicator:Service.Workspaces'
+        permission: GRANT
+      -
+        privilegeTarget: 'Flownative.Neos.Replicator:Service.Assets'
+        permission: GRANT

@@ -1,0 +1,63 @@
+Flownative:
+  Neos:
+    Replicator:
+      # a key used to authenticate against the replication API, make it long and random
+      apiKey: 'long and random key for this system'
+
+      # any number of targets available for replication
+      targets:
+        # the keys can be assigned at will, the special __self__ target is reserved and always defined
+        'staging':
+          # a human-readable name for the endpoint, optional
+          name: 'ame.com Staging Server'
+          # a human-readable description for the endpoint, optional
+          description: 'The staging server'
+          # the base URL to use for replication, SSL is highly recommended!
+          baseUrl: 'https://staging.acme.com/'
+          # a key used to authenticate against the replication API, make it long and random
+          apiKey: 'use a random string here'
+        'live':
+          name: 'ame.com Live Server'
+          description: 'The live server, never edited on'
+          baseUrl: 'https://www.acme.com/'
+          apiKey: 'use another random string here'
+
+      # any number of replication configurations
+      replications:
+        'to-staging':
+          # a human-readable name for the endpoint, optional
+          name: 'ame.com Editing to Staging'
+          # a human-readable description for the endpoint, optional
+          description: 'Deploys from editing to staging'
+          # how replication is triggered: publish, manual
+          # optional, defaults to manual
+          trigger: 'publish'
+          # what data is to be replicated: nodes, users, assets
+          # optional, defaults to nodes
+          types: ['nodes']
+          # workspaces to replicate, examples:
+          # 'live', 'variant-a:live', '*', 'user-*'
+          # keep in mind that base workspaces will be replicated as well, even if not included in the list
+          workspaces: ['live']
+          # source (one of the targets, ironically)
+          # optional (defaults to __self__)
+          source: '__self__'
+          # target(s)
+          targets: ['staging']
+        'to-live':
+          name: 'ame.com Editing to Live'
+          description: 'Deploys from editing to live'
+          trigger: 'manual'
+          types: ['nodes']
+          workspaces: ['live']
+          targets: ['live']
+        'from-live':
+          name: 'ame.com Live to Development'
+          description: 'Deploys from live to local machine'
+          trigger: 'manual'
+          types: ['nodes']
+          # pull live, empty user workspaces
+          workspaces: ['live', ':user-*']
+          source: 'live'
+          targets: ['__self__']
+

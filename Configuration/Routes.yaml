@@ -1,0 +1,10 @@
+-
+  name:  'Replicator Service'
+  uriPattern: 'neos-replicator/<ServiceSubRoutes>'
+  defaults:
+    '@package':    'Flownative.Neos.Replicator'
+    '@action':     'index'
+  subRoutes:
+    'ServiceSubRoutes':
+      package: 'Flownative.Neos.Replicator'
+      suffix:  'Service'

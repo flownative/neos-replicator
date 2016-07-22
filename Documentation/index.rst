@@ -41,15 +41,15 @@ both servers, again into the live workspace, overriding the previous content.
 Installation
 ------------
 
-The package needs to be available in all Neos instances that will be involved with the replication.
+The systems need to be set up so far, that Neos can render a "no homepage has been defined". That means a site
+package must exist and the configuration and setup of the database must be done.
 
-It can be installed by
+The package then needs to be available in all Neos instances that will be involved with the replication. It can
+be installed by
 
 .. code-block:: none
 
   $ composer require flownative/neos-replicator
-
-Afterwards it needs to be configured.
 
 Configuration
 -------------
@@ -62,7 +62,7 @@ Endpoint configuration
 
 This is done in *Settings.yaml* as follows:
 
-.. literalinclude:: ../Configuration/Settings.yaml
+.. literalinclude:: ../Configuration/Settings.yaml.example
    :language: yaml
    :lines: 1-18
    :emphasize-lines: 7-
@@ -83,7 +83,7 @@ Replications define what is replicated between systems:
 
 This is done in *Settings.yaml* as follows:
 
-.. literalinclude:: ../Configuration/Settings.yaml
+.. literalinclude:: ../Configuration/Settings.yaml.example
    :language: yaml
    :lines: 24-43
 
@@ -97,6 +97,7 @@ Things to keep in mind
 - **Packages are never replicated**. Your site package, any add-ons your site uses and the Neos system itself
   are-again-just code and deployed as such. That means any content relying on specific code being available
   will only work as expected if that code is available on the target.
+- **ContentObject use on nodes is not supported**. If a node has a *ContentObject* attached, this will be ingored.
 
 Inside the replication
 ----------------------
