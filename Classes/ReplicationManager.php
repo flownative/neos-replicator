@@ -45,6 +45,24 @@ class ReplicationManager
 
     /**
      * @Flow\Inject
+     * @var \TYPO3\Neos\Domain\Service\ContentContextFactory
+     */
+    protected $contentContextFactory;
+
+    /**
+     * @Flow\Inject
+     * @var \TYPO3\Neos\Domain\Repository\SiteRepository
+     */
+    protected $siteRepository;
+
+    /**
+     * @Flow\Inject
+     * @var \TYPO3\TYPO3CR\Domain\Repository\WorkspaceRepository
+     */
+    protected $workspaceRepository;
+
+    /**
+     * @Flow\Inject
      * @var \TYPO3\Flow\Http\Client\Browser
      */
     protected $browser;
@@ -78,9 +96,9 @@ class ReplicationManager
     protected $replicationConfigurations = [];
 
     /**
-     * @var ReplicationTarget[]
+     * @var ReplicationNode[]
      */
-    protected $replicationTargets = [];
+    protected $replicationNodes = [];
 
     /**
      * Serves as a simple cache to make sure each target/site is checked only once per request
@@ -121,8 +139,8 @@ class ReplicationManager
         foreach ($this->settings['replications'] as $identifier => $configuration) {
             $this->replicationConfigurations[$identifier] = new ReplicationConfiguration($identifier, $configuration);
         }
-        foreach ($this->settings['targets'] as $identifier => $configuration) {
-            $this->replicationTargets[$identifier] = new ReplicationTarget($identifier, $configuration);
+        foreach ($this->settings['nodes'] as $identifier => $configuration) {
+            $this->replicationNodes[$identifier] = new ReplicationNode($identifier, $configuration);
         }
     }
 
@@ -140,7 +158,7 @@ class ReplicationManager
         $replicationConfigurations = $this->getMatchingReplicationConfigurations($targetWorkspace->getName(), ReplicationConfiguration::TRIGGER_PUBLISH);
         foreach ($replicationConfigurations as $replicationConfiguration) {
             foreach ($replicationConfiguration->getTargets() as $targetIdentifier) {
-                $target = $this->replicationTargets[$targetIdentifier];
+                $target = $this->replicationNodes[$targetIdentifier];
 
                 try {
                     $site = $node->getContext()->getCurrentSite();
@@ -170,8 +188,8 @@ class ReplicationManager
     /**
      * Returns an array with ReplicationConfiguration instances matching the $workspaceName and trigger
      *
-     * @param $workspaceName
-     * @param $trigger
+     * @param string $workspaceName
+     * @param string $trigger
      * @return ReplicationConfiguration[]
      */
     protected function getMatchingReplicationConfigurations($workspaceName, $trigger)
@@ -185,10 +203,10 @@ class ReplicationManager
      * Replicates the site to the target.
      *
      * @param Site $site
-     * @param ReplicationTarget $replicationTarget
+     * @param ReplicationNode $replicationTarget
      * @return void
      */
-    protected function replicateSite(Site $site, ReplicationTarget $replicationTarget)
+    protected function replicateSite(Site $site, ReplicationNode $replicationTarget)
     {
         if (isset($this->firstLevelSitesCache[$replicationTarget->getName()][$site->getNodeName()])) {
             return;
@@ -233,10 +251,10 @@ class ReplicationManager
      * Replicates the workspace (as in the workspace entity) to the target.
      *
      * @param Workspace $workspace
-     * @param ReplicationTarget $replicationTarget
+     * @param ReplicationNode $replicationTarget
      * @return void
      */
-    protected function replicateWorkspace(Workspace $workspace, ReplicationTarget $replicationTarget)
+    protected function replicateWorkspace(Workspace $workspace, ReplicationNode $replicationTarget)
     {
         if (isset($this->firstLevelWorkspacesCache[$replicationTarget->getName()][$workspace->getName()])) {
             return;
@@ -250,7 +268,12 @@ class ReplicationManager
                     $this->replicateWorkspace($baseWorkspace, $replicationTarget);
                 }
 
-                $response = $this->post('workspaces/' . $workspace->getName(), $replicationTarget);
+                $baseWorkspace = $workspace->getBaseWorkspace();
+                if ($baseWorkspace === null) {
+                    $response = $this->post('workspaces/' . $workspace->getName(), $replicationTarget);
+                } else {
+                    $response = $this->post('workspaces/' . $workspace->getBaseWorkspace()->getName() . '/' . $workspace->getName(), $replicationTarget);
+                }
                 switch ($response->getStatusCode()) {
                     case 201:
                         $this->systemLogger->log(sprintf('Created workspace "%s" on target "%s"', $workspace->getName(), $replicationTarget->getName(), $response->getStatusCode()), LOG_NOTICE);
@@ -280,10 +303,10 @@ class ReplicationManager
      * For resource-based properties, replicate them as needed.
      *
      * @param NodeInterface $node
-     * @param ReplicationTarget $replicationTarget
+     * @param ReplicationNode $replicationTarget
      * @return void
      */
-    protected function processResourceBasedProperties(NodeInterface $node, ReplicationTarget $replicationTarget)
+    protected function processResourceBasedProperties(NodeInterface $node, ReplicationNode $replicationTarget)
     {
         foreach ($node->getNodeType()->getProperties() as $propertyName => $propertyConfiguration) {
             if (!isset($propertyConfiguration['type'])) {
@@ -305,7 +328,6 @@ class ReplicationManager
 
                     $this->createOrUpdateAsset($asset, $replicationTarget);
             }
-
         }
     }
 
@@ -313,10 +335,10 @@ class ReplicationManager
      * Create or update the asset to the target, as needed.
      *
      * @param Asset $asset
-     * @param ReplicationTarget $replicationTarget
+     * @param ReplicationNode $replicationTarget
      * @return void
      */
-    protected function createOrUpdateAsset(Asset $asset, ReplicationTarget $replicationTarget)
+    protected function createOrUpdateAsset(Asset $asset, ReplicationNode $replicationTarget)
     {
         $response = $this->get('assets/' . $asset->getIdentifier(), $replicationTarget);
         switch ($response->getStatusCode()) {
@@ -346,15 +368,15 @@ class ReplicationManager
      *
      * @param NodeInterface $node
      * @param Workspace $targetWorkspace
-     * @param ReplicationTarget $replicationTarget
+     * @param ReplicationNode $replicationTarget
      * @return void
      * @todo use property mapper to convert nodes?
      */
-    protected function replicateNode(NodeInterface $node, Workspace $targetWorkspace, ReplicationTarget $replicationTarget)
+    protected function replicateNode(NodeInterface $node, Workspace $targetWorkspace, ReplicationNode $replicationTarget)
     {
         if ($node->isRemoved() === true) {
             // fetch, check version, return 428 if newer on target?
-            $response = $this->delete('nodes/' . $node->getIdentifier(), $replicationTarget, ['workspace' => $targetWorkspace->getName(), 'dimensions' => $node->getDimensions()]);
+            $response = $this->delete('nodes/' . $node->getIdentifier(), $replicationTarget, ['workspaceName' => $targetWorkspace->getName(), 'dimensions' => $node->getDimensions()]);
             switch ($response->getStatusCode()) {
                 case 200:
                 case 204:
@@ -394,7 +416,7 @@ class ReplicationManager
                     $parentNode = $node->getParent();
                     while ($parentNode instanceof NodeInterface) {
                         if ($parentNode->getDepth() > 0) {
-                            $this->replicateNode($parentNode, $targetWorkspace, $replicationTarget);
+                            $this->replicateNode($parentNode, $parentNode->getWorkspace(), $replicationTarget);
                         }
                         $parentNode = $parentNode->getParent();
                     }
@@ -445,6 +467,8 @@ class ReplicationManager
 
         // and include even more things we need
         $properties['_index'] = $node->getIndex();
+        $properties['_name'] = $node->getName();
+        $properties['__parentPath'] = $node->getParentPath();
 
         return $properties;
     }
@@ -453,11 +477,11 @@ class ReplicationManager
      * Send a DELETE request to the $path at the $target system.
      *
      * @param string $path
-     * @param ReplicationTarget $target
+     * @param ReplicationNode $target
      * @param array $arguments
      * @return Response
      */
-    protected function delete($path, ReplicationTarget $target, array $arguments = [])
+    protected function delete($path, ReplicationNode $target, array $arguments = [])
     {
         $url = new Uri($target->getBaseUrl() . 'neos-replicator/' . $path);
         $request = HttpRequest::create($url, 'DELETE');
@@ -474,11 +498,11 @@ class ReplicationManager
      * Send a GET request to the $path at the $target system.
      *
      * @param string $path
-     * @param ReplicationTarget $target
+     * @param ReplicationNode $target
      * @param array $arguments
      * @return Response
      */
-    protected function get($path, ReplicationTarget $target, array $arguments = [])
+    protected function get($path, ReplicationNode $target, array $arguments = [])
     {
         $url = new Uri($target->getBaseUrl() . 'neos-replicator/' . $path);
         $request = HttpRequest::create($url, 'GET');
@@ -495,11 +519,11 @@ class ReplicationManager
      * Send a POST request to the $path at the $target system.
      *
      * @param string $path
-     * @param ReplicationTarget $target
+     * @param ReplicationNode $target
      * @param array $arguments
      * @return Response
      */
-    protected function post($path, ReplicationTarget $target, array $arguments = [])
+    protected function post($path, ReplicationNode $target, array $arguments = [])
     {
         $url = new Uri($target->getBaseUrl() . 'neos-replicator/' . $path);
         $request = HttpRequest::create($url, 'POST');
@@ -516,11 +540,11 @@ class ReplicationManager
      * Send a PUT request to the $path at the $target system.
      *
      * @param string $path
-     * @param ReplicationTarget $target
+     * @param ReplicationNode $target
      * @param array $arguments
      * @return Response
      */
-    protected function put($path, ReplicationTarget $target, array $arguments = [])
+    protected function put($path, ReplicationNode $target, array $arguments = [])
     {
         $url = new Uri($target->getBaseUrl() . 'neos-replicator/' . $path);
         $request = HttpRequest::create($url, 'PUT');

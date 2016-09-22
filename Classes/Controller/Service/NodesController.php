@@ -11,8 +11,8 @@ namespace Flownative\Neos\Replicator\Controller\Service;
  * source code.
  */
 
+use Flownative\Neos\Replicator\PropertyMappingConfiguration;
 use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Property\PropertyMappingConfigurationInterface;
 use TYPO3\Flow\Reflection\ObjectAccess;
 use TYPO3\TYPO3CR\Domain\Model\NodeType;
 use TYPO3\TYPO3CR\Domain\Service\Context;
@@ -20,8 +20,8 @@ use TYPO3\TYPO3CR\Domain\Service\Context;
 /**
  * Rudimentary REST service for nodes
  *
- * This enhances the Neos controller as needed, so the package is usable with Neos 2.1 and 2.2.
- * For Neos 2.3 the changes should hopefully be part of Neos and this controller can be dropped.
+ * This enhances the Neos controller as needed, so the package is usable with Neos 2.3.
+ * For Neos 3.0 the changes should hopefully be part of Neos and this controller can be dropped.
  *
  * @Flow\Scope("singleton")
  */
@@ -68,13 +68,17 @@ class NodesController extends \TYPO3\Neos\Controller\Service\NodesController
                 } else {
                     $nodeType = $this->nodeTypeManager->getNodeType('unstructured');
                 }
-                $newNode = $parentNode->createNode($properties['_name'], $nodeType, $identifier);
-                unset($properties['_name']);
 
-                try {
-                    $this->setNodeProperties($newNode, $nodeType, $properties, $contentContext);
-                } catch (\Exception $exception) {
-                    $this->throwStatus(500, 'Error when setting properties. ' . $exception->getMessage());
+                $existingChildNode = $parentNode->getNode($properties['_name']);
+                if ($existingChildNode === null) {
+                    $newNode = $parentNode->createNode($properties['_name'], $nodeType, $identifier);
+                    unset($properties['_name']);
+
+                    try {
+                        $this->setNodeProperties($newNode, $nodeType, $properties, $contentContext);
+                    } catch (\Exception $exception) {
+                        $this->throwStatus(500, 'Error when setting properties. ' . $exception->getMessage());
+                    }
                 }
 
                 $this->redirect('show', null, null, [
@@ -156,13 +160,14 @@ class NodesController extends \TYPO3\Neos\Controller\Service\NodesController
      * @param NodeType $nodeType
      * @param array $properties
      * @param Context $context
-     * @param PropertyMappingConfigurationInterface $configuration
      * @return void
      * @throws \TYPO3\Flow\Property\Exception\TypeConverterException
      * @todo taken from NodeConverter in TYPO3CR, move to some common place?
      */
-    protected function setNodeProperties($nodeLike, NodeType $nodeType, array $properties, Context $context, PropertyMappingConfigurationInterface $configuration = null)
+    protected function setNodeProperties($nodeLike, NodeType $nodeType, array $properties, Context $context)
     {
+        $configuration = New PropertyMappingConfiguration();
+
         $nodeTypeProperties = $nodeType->getProperties();
         unset($properties['_lastPublicationDateTime']);
         foreach ($properties as $nodePropertyName => $nodePropertyValue) {

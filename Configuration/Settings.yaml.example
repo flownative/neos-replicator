@@ -4,9 +4,9 @@ Flownative:
       # a key used to authenticate against the replication API, make it long and random
       apiKey: 'long and random key for this system'
 
-      # any number of targets available for replication
-      targets:
-        # the keys can be assigned at will, the special __self__ target is reserved and always defined
+      # any number of nodes available for replication
+      nodes:
+        # the keys can be assigned at will, the special __self__ node is reserved and always defined
         'staging':
           # a human-readable name for the endpoint, optional
           name: 'ame.com Staging Server'
@@ -39,7 +39,7 @@ Flownative:
           # 'live', 'variant-a:live', '*', 'user-*'
           # keep in mind that base workspaces will be replicated as well, even if not included in the list
           workspaces: ['live']
-          # source (one of the targets, ironically)
+          # source (one of the nodes)
           # optional (defaults to __self__)
           source: '__self__'
           # target(s)

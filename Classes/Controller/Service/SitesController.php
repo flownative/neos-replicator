@@ -89,6 +89,10 @@ class SitesController extends ActionController
     public function showAction($nodeName)
     {
         $site = $this->siteRepository->findOneByNodeName($nodeName);
+        if ($site === null) {
+            $this->throwStatus(404, 'Site not found', '');
+        }
+
         $this->view->assign('site', $site);
     }
 

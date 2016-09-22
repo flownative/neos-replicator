@@ -11,11 +11,13 @@ namespace Flownative\Neos\Replicator;
  * source code.
  */
 
+use TYPO3\Flow\Persistence\Doctrine\ArrayTypeConverter;
 use TYPO3\Flow\Property\PropertyMappingConfigurationInterface;
 use TYPO3\Flow\Property\TypeConverter\ObjectConverter;
 use TYPO3\Flow\Property\TypeConverter\PersistentObjectConverter;
 use TYPO3\Flow\Resource\ResourceTypeConverter;
 use TYPO3\Media\TypeConverter\AssetInterfaceConverter;
+use TYPO3\Media\TypeConverter\ImageInterfaceConverter;
 
 /**
  * Property mapping configuration which is used for import / export:
@@ -48,6 +50,9 @@ class PropertyMappingConfiguration implements PropertyMappingConfigurationInterf
         if ($typeConverterClassName === PersistentObjectConverter::class && $key === PersistentObjectConverter::CONFIGURATION_IDENTITY_CREATION_ALLOWED) {
             return true;
         }
+        if ($typeConverterClassName === PersistentObjectConverter::class && $key === PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED) {
+            return true;
+        }
         if ($typeConverterClassName === ResourceTypeConverter::class && $key === ResourceTypeConverter::CONFIGURATION_IDENTITY_CREATION_ALLOWED) {
             return true;
         }
@@ -58,6 +63,15 @@ class PropertyMappingConfiguration implements PropertyMappingConfigurationInterf
             return true;
         }
         if ($typeConverterClassName === AssetInterfaceConverter::class && $key === AssetInterfaceConverter::CONFIGURATION_ONE_PER_RESOURCE) {
+            return true;
+        }
+        if ($typeConverterClassName === AssetInterfaceConverter::class && $key === AssetInterfaceConverter::CONFIGURATION_OVERRIDE_TARGET_TYPE_ALLOWED) {
+            return true;
+        }
+        if ($typeConverterClassName === ImageInterfaceConverter::class && $key === ImageInterfaceConverter::CONFIGURATION_CREATION_ALLOWED) {
+            return true;
+        }
+        if ($typeConverterClassName === ArrayTypeConverter::class && $key === ArrayTypeConverter::CONFIGURATION_CONVERT_ELEMENTS) {
             return true;
         }
 

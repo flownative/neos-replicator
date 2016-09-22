@@ -7,8 +7,8 @@ Flownative:
       # a key used to authenticate against the replication API, make it long and random
       apiKey: ''
 
-      # any number of targets available for replication
-      targets: []
+      # any number of nodes available for replication
+      nodes: []
 
       # any number of replication configurations
       replications: []

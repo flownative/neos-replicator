@@ -42,4 +42,18 @@ class WorkspacesController extends \TYPO3\Neos\Controller\Service\WorkspacesCont
         $this->workspaceRepository->add($workspace);
         $this->throwStatus(201, 'Workspace created', '');
     }
+
+    /**
+     * Create a workspace
+     *
+     * @param string $workspaceName
+     * @param Workspace $baseWorkspace
+     * @param string $ownerAccountIdentifier
+     * @return string
+     * @Flow\SkipCsrfProtection
+     */
+    public function createAction($workspaceName, Workspace $baseWorkspace, $ownerAccountIdentifier = null)
+    {
+        parent::createAction($workspaceName, $baseWorkspace, $ownerAccountIdentifier);
+    }
 }

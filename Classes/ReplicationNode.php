@@ -14,10 +14,10 @@ namespace Flownative\Neos\Replicator;
 use TYPO3\Flow\Annotations as Flow;
 
 /**
- * This represents a specific replication target.
+ * This represents a specific replication node.
  *
  */
-class ReplicationTarget
+class ReplicationNode
 {
 
     /**
@@ -46,7 +46,7 @@ class ReplicationTarget
     protected $apiKey = '';
 
     /**
-     * ReplicationTarget constructor.
+     * ReplicationNode constructor.
      *
      * @param string $identifier
      * @param array $configuration
