@@ -54,6 +54,11 @@ class ReplicationConfiguration
     /**
      * @var array
      */
+    protected $sites = [];
+
+    /**
+     * @var array
+     */
     protected $workspaces = [];
 
     /**
@@ -123,6 +128,14 @@ class ReplicationConfiguration
     /**
      * @return string[]
      */
+    public function getSites()
+    {
+        return $this->sites;
+    }
+
+    /**
+     * @return string[]
+     */
     public function getWorkspaces()
     {
         return $this->workspaces;
@@ -142,6 +155,17 @@ class ReplicationConfiguration
     public function getTargets()
     {
         return $this->targets;
+    }
+
+    /**
+     * Returns true if the given $siteNodeName matches against a source site of this ReplicationConfiguration.
+     *
+     * @param $siteNodeName
+     * @return boolean
+     */
+    public function matchesSiteNodeName($siteNodeName)
+    {
+        return $this->sites === [] || (array_search($siteNodeName, $this->sites, true) !== false);
     }
 
     /**

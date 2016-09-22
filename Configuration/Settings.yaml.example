@@ -44,6 +44,8 @@ Flownative:
           source: '__self__'
           # target(s)
           targets: ['staging']
+          # site(s)
+          sites: []
         'to-live':
           name: 'ame.com Editing to Live'
           description: 'Deploys from editing to live'

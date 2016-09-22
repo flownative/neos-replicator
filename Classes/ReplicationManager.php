@@ -155,7 +155,7 @@ class ReplicationManager
      */
     public function nodeHasBeenPublished(NodeInterface $node, Workspace $targetWorkspace)
     {
-        $replicationConfigurations = $this->getMatchingReplicationConfigurations($targetWorkspace->getName(), ReplicationConfiguration::TRIGGER_PUBLISH);
+        $replicationConfigurations = $this->getMatchingReplicationConfigurations($node->getContext()->getCurrentSite()->getNodeName(), $targetWorkspace->getName(), ReplicationConfiguration::TRIGGER_PUBLISH);
         foreach ($replicationConfigurations as $replicationConfiguration) {
             foreach ($replicationConfiguration->getTargets() as $targetIdentifier) {
                 $target = $this->replicationNodes[$targetIdentifier];
@@ -188,14 +188,15 @@ class ReplicationManager
     /**
      * Returns an array with ReplicationConfiguration instances matching the $workspaceName and trigger
      *
+     * @param string $siteNodeName
      * @param string $workspaceName
      * @param string $trigger
      * @return ReplicationConfiguration[]
      */
-    protected function getMatchingReplicationConfigurations($workspaceName, $trigger)
+    protected function getMatchingReplicationConfigurations($siteNodeName, $workspaceName, $trigger)
     {
-        return array_filter($this->replicationConfigurations, function (ReplicationConfiguration $replicationConfiguration) use ($workspaceName, $trigger) {
-            return $replicationConfiguration->getTrigger() === $trigger && $replicationConfiguration->matchesWorkspaceName($workspaceName);
+        return array_filter($this->replicationConfigurations, function (ReplicationConfiguration $replicationConfiguration) use ($siteNodeName, $workspaceName, $trigger) {
+            return $replicationConfiguration->getTrigger() === $trigger && $replicationConfiguration->matchesSiteNodeName($siteNodeName) && $replicationConfiguration->matchesWorkspaceName($workspaceName);
         });
     }
 
