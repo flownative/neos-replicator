@@ -16,7 +16,7 @@ Use-cases
 
 The simplest use-case for this is a simple replication from one server to another. This can be used to
 have an editing server that is not reachable from the internet. Content is then pushed to a live
-server (that has no editors, a read-only database connection, …):
+server (having no editors):
 
 .. image:: Images/editing-live.png
 
@@ -54,7 +54,7 @@ be installed by
 Configuration
 -------------
 
-The configuration is split in two areas of responsibility. There is the setup of available targets to
+The configuration is split in two areas of responsibility. There is the setup of available nodes to
 be used in replication and there is the configuration of the replication itself.
 
 Endpoint configuration
@@ -67,7 +67,7 @@ This is done in *Settings.yaml* as follows:
    :lines: 1-18
    :emphasize-lines: 7-
 
-You can have as many endpoints as you need, and you can define them all at every system or put only the
+You can have as many nodes as you need, and you can define them all at every system or put only the
 needed ones on every setup, depending on the replication you actually need to run.
 
 Replication configuration
@@ -77,7 +77,7 @@ Replications define what is replicated between systems:
 
 - which data (content, users, assets, …)
 - the source and target workspace
-- endpoints to replicate from/to
+- nodes to replicate from/to
 - filters to exclude or include items
 - …
 
@@ -85,7 +85,7 @@ This is done in *Settings.yaml* as follows:
 
 .. literalinclude:: ../Configuration/Settings.yaml.example
    :language: yaml
-   :lines: 24-43
+   :lines: 24-48
 
 Things to keep in mind
 ----------------------
@@ -99,9 +99,13 @@ Things to keep in mind
   will only work as expected if that code is available on the target.
 - **ContentObject use on nodes is not supported**. If a node has a *ContentObject* attached, this will be ingored.
 
-Inside the replication
-----------------------
+Not yet supported
+-----------------
 
-Here is what happens:
+Some things are hinted at in the example settings, but not yet supported:
 
-.. image:: Images/replication-flow.png
+- Replication of **assets not connected to nodes** is not done, only assets used in nodes will be replicated.
+- Replication of **users** is not yet supported.
+- Workspaces to replicate **can only be specified using a single name**, the wildcard syntax and colon-seperated
+  syntax shown in the example settings is not yet supported.
+- Currently **only the publish trigger** is supported.
