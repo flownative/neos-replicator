@@ -16,6 +16,7 @@ use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Reflection\ObjectAccess;
 use TYPO3\TYPO3CR\Domain\Model\NodeType;
 use TYPO3\TYPO3CR\Domain\Service\Context;
+use TYPO3\TYPO3CR\Domain\Utility\NodePaths;
 
 /**
  * Rudimentary REST service for nodes
@@ -116,6 +117,16 @@ class NodesController extends \TYPO3\Neos\Controller\Service\NodesController
             unset($properties['_nodeType']);
         } else {
             $nodeType = $this->nodeTypeManager->getNodeType('unstructured');
+        }
+
+        if ($node->getPath() !== $properties['_path']) {
+            $newPath = $properties['_path'];
+            $newParentPath = NodePaths::getParentPath($newPath);
+            $newParentNode = $contentContext->getRootNode()->getNode($newParentPath);
+
+            $node->moveInto($newParentNode);
+
+            unset($properties['_path']);
         }
 
         try {
