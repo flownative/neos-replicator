@@ -27,6 +27,6 @@ class Package extends BasePackage
     public function boot(Bootstrap $bootstrap)
     {
         $dispatcher = $bootstrap->getSignalSlotDispatcher();
-        $dispatcher->connect('TYPO3\TYPO3CR\Domain\Model\Workspace', 'afterNodePublishing', 'Flownative\Neos\Replicator\ReplicationManager', 'nodeHasBeenPublished');
+        $dispatcher->connect(\TYPO3\TYPO3CR\Domain\Model\Workspace::class, 'afterNodePublishing', \Flownative\Neos\Replicator\ReplicationManager::class, 'nodeHasBeenPublished');
     }
 }

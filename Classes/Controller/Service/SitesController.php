@@ -41,8 +41,8 @@ class SitesController extends ActionController
      * @var array
      */
     protected $viewFormatToObjectNameMap = [
-        'html' => 'TYPO3\Fluid\View\TemplateView',
-        'json' => 'Flownative\Neos\Replicator\View\Service\SiteJsonView'
+        'html' => \TYPO3\Fluid\View\TemplateView::class,
+        'json' => \Flownative\Neos\Replicator\View\Service\SiteJsonView::class
     ];
 
     /**
